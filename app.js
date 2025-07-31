@@ -23,7 +23,11 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true,
 })
 .then(() => console.log('✅ Connected to MongoDB'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+.catch(err => {
+  console.error('❌ MongoDB connection error:', err);
+  // Չմիանամ հավելվածը եթե MongoDB-ին չի միացել
+  process.exit(1);
+});
 
 // Middleware
 app.use(express.static('public'));
@@ -31,16 +35,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
 
-// Session configuration
+// Session configuration with better error handling
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'your-fallback-secret-key',
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI
+    mongoUrl: process.env.MONGO_URI,
+    touchAfter: 24 * 3600 // lazy session update
   }),
   cookie: {
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true
   }
 }));
 
@@ -53,7 +60,10 @@ app.use('*', checkUser);
 
 // Routes
 app.get('/', (req, res) => {
-  res.render('index', { title: 'MediRemind - Medical Reminder System' });
+  res.render('index', { 
+    title: 'MediRemind - Medical Reminder System',
+    user: res.locals.user || null
+  });
 });
 
 app.use('/auth', authRoutes);
@@ -62,17 +72,37 @@ app.use('/patient', requireAuth, patientRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).render('404', { title: 'Page Not Found' });
+  res.status(404).render('404', { 
+    title: 'Page Not Found',
+    user: res.locals.user || null
+  });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).render('500', { title: 'Server Error' });
+  res.status(500).render('500', { 
+    title: 'Server Error',
+    user: res.locals.user || null
+  });
 });
 
-// Start the scheduler
-require('./utils/scheduler');
+// Start the scheduler only after successful DB connection
+mongoose.connection.once('open', () => {
+  try {
+    require('./utils/scheduler');
+    console.log('✅ Scheduler started');
+  } catch (schedulerError) {
+    console.error('⚠️ Scheduler failed to start:', schedulerError.message);
+  }
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('🛑 Shutting down gracefully...');
+  await mongoose.connection.close();
+  process.exit(0);
+});
 
 // Start server
 app.listen(PORT, () => {

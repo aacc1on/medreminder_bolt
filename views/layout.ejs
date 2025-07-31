@@ -22,7 +22,7 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <% if (locals.user) { %>
+                    <% if (typeof user !== 'undefined' && user) { %>
                         <% if (user.role === 'doctor') { %>
                             <li class="nav-item">
                                 <a class="nav-link" href="/doctor/dashboard">
@@ -47,7 +47,7 @@
                                     </a></li>
                                 </ul>
                             </li>
-                        <% } else { %>
+                        <% } else if (user.role === 'patient') { %>
                             <li class="nav-item">
                                 <a class="nav-link" href="/patient/dashboard">
                                     <i class="bi bi-speedometer2 me-1"></i>Dashboard
@@ -76,7 +76,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><h6 class="dropdown-header">
-                                    <%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %> Account
+                                    <%= user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User' %> Account
                                 </h6></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="/auth/logout">

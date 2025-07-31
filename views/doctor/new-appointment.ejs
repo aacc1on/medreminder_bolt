@@ -1,137 +1,625 @@
-<div class="container py-4">
-    <!-- Header -->
-    <div class="row align-items-center mb-4">
-        <div class="col">
-            <h1 class="h2 fw-bold mb-1">
-                <i class="bi bi-calendar-plus text-success me-2"></i>Schedule Appointment
-            </h1>
-            <p class="text-muted mb-0">Book a visit for your patient</p>
-        </div>
-        <div class="col-auto">
-            <a href="/doctor/dashboard" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
-            </a>
-        </div>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Appointment - MediCare</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 1.5rem;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <!-- Error Messages -->
-                    <% if (errors && errors.length > 0) { %>
-                        <div class="alert alert-danger">
-                            <% errors.forEach(error => { %>
-                                <div><i class="bi bi-exclamation-triangle me-2"></i><%= error.msg %></div>
-                            <% }) %>
-                        </div>
-                    <% } %>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-                    <form action="/doctor/new-appointment" method="POST">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="patientId" class="form-label">Select Patient *</label>
-                                <select class="form-select" name="patientId" id="patientId" required>
-                                    <option value="">Choose a patient...</option>
-                                    <% patients.forEach(patient => { %>
-                                        <option value="<%= patient._id %>" 
-                                                <%= formData.patientId === patient._id.toString() ? 'selected' : '' %>>
-                                            <%= patient.name %> (<%= patient.email %>)
-                                        </option>
-                                    <% }) %>
-                                </select>
-                            </div>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-                            <div class="col-md-6 mb-3">
-                                <label for="date" class="form-label">Appointment Date *</label>
-                                <input type="date" 
-                                       class="form-control" 
-                                       id="date" 
-                                       name="date" 
-                                       value="<%= formData.date || '' %>"
-                                       required>
-                            </div>
-                        </div>
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,117.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"%3E%3C/path%3E%3C/svg%3E') no-repeat bottom;
+            background-size: cover;
+            pointer-events: none;
+            z-index: -1;
+        }
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="time" class="form-label">Appointment Time *</label>
-                                <input type="time" 
-                                       class="form-control" 
-                                       id="time" 
-                                       name="time" 
-                                       value="<%= formData.time || '' %>"
-                                       required>
-                            </div>
+        .container {
+            position: relative;
+            z-index: 1;
+        }
 
-                            <div class="col-md-6 mb-3">
-                                <label for="location" class="form-label">Location *</label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="location" 
-                                       name="location" 
-                                       value="<%= formData.location || (user.clinicName || '') %>"
-                                       placeholder="e.g., Main clinic, Room 3"
-                                       required>
-                            </div>
-                        </div>
+        /* Header Styles */
+        .page-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
 
-                        <div class="mb-4">
-                            <label for="notes" class="form-label">Appointment Notes</label>
-                            <textarea class="form-control" 
-                                      id="notes" 
-                                      name="notes" 
-                                      rows="3"
-                                      placeholder="e.g., Follow-up consultation, Lab results review, etc."><%= formData.notes || '' %></textarea>
-                        </div>
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--success-gradient);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
 
-                        <div class="d-flex gap-3">
-                            <button type="submit" class="btn btn-success px-4">
-                                <i class="bi bi-calendar-plus me-2"></i>Schedule Appointment
-                            </button>
-                            <a href="/doctor/dashboard" class="btn btn-outline-secondary px-4">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
+        .page-title {
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Form Card Styles */
+        .form-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        /* Form Controls */
+        .form-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .form-control:hover, .form-select:hover {
+            border-color: #cbd5e0;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Button Styles */
+        .btn-custom {
+            border-radius: 0.75rem;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+
+        .btn-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-custom:hover::before {
+            left: 100%;
+        }
+
+        .btn-success-custom {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .btn-success-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-outline-secondary-custom {
+            background: transparent;
+            border: 2px solid #6c757d;
+            color: #6c757d;
+        }
+
+        .btn-outline-secondary-custom:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        /* Alert Styles */
+        .alert-custom {
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            animation: slideInDown 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert-danger-custom {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        /* Helper Card */
+        .helper-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .helper-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .helper-title {
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .helper-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .helper-list li {
+            padding: 0.5rem 0;
+            color: #4a5568;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .helper-list li i {
+            margin-right: 0.75rem;
+            font-size: 1rem;
+        }
+
+        /* Form Group Animations */
+        .form-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group.focused .form-label {
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* Required Field Indicator */
+        .form-label.required::after {
+            content: ' *';
+            color: #e53e3e;
+            font-weight: bold;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Loading State */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+            }
+            
+            .form-card {
+                margin: 0 1rem;
+            }
+
+            .btn-custom {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="page-header animate-fade-in">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h1 class="page-title">
+                        <i class="bi bi-calendar-plus me-3"></i>Schedule Appointment
+                    </h1>
+                    <p class="page-subtitle">Book a visit for your patient</p>
+                </div>
+                <div class="col-auto">
+                    <a href="/doctor/dashboard" class="btn btn-outline-secondary-custom btn-custom">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                    </a>
                 </div>
             </div>
+        </div>
 
-            <!-- Helper Card -->
-            <div class="card border-0 bg-light mt-4">
-                <div class="card-body">
-                    <h6 class="fw-bold mb-3">
-                        <i class="bi bi-info-circle text-success me-2"></i>Appointment Reminders
-                    </h6>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <ul class="list-unstyled small">
-                                <li><i class="bi bi-telegram text-primary me-2"></i>Patient will receive Telegram reminder 1 day before</li>
-                                <li><i class="bi bi-clock text-warning me-2"></i>Reminders sent daily at 9:00 AM</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <ul class="list-unstyled small">
-                                <li><i class="bi bi-geo-alt text-danger me-2"></i>Include specific location details</li>
-                                <li><i class="bi bi-chat-left-text text-info me-2"></i>Add relevant notes for the patient</li>
-                            </ul>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Main Form Card -->
+                <div class="form-card animate-fade-in" style="animation-delay: 0.2s">
+                    <div class="card-body p-4">
+                        <!-- Error Messages -->
+                        <% if (errors && errors.length > 0) { %>
+                            <div class="alert alert-danger-custom alert-custom mb-4">
+                                <h6 class="fw-bold mb-2">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>Please fix the following errors:
+                                </h6>
+                                <% errors.forEach(error => { %>
+                                    <div class="mb-1">• <%= error.msg %></div>
+                                <% }) %>
+                            </div>
+                        <% } %>
+
+                        <form action="/doctor/new-appointment" method="POST" id="appointmentForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="patientId" class="form-label required">Select Patient</label>
+                                        <select class="form-select" name="patientId" id="patientId" required>
+                                            <option value="">Choose a patient...</option>
+                                            <% patients.forEach(patient => { %>
+                                                <option value="<%= patient._id %>"
+                                                         <%= formData.patientId === patient._id.toString() ? 'selected' : '' %>>
+                                                    <%= patient.name %> (<%= patient.email %>)
+                                                </option>
+                                            <% }) %>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="date" class="form-label required">Appointment Date</label>
+                                        <input type="date"
+                                                class="form-control"
+                                                id="date"
+                                                name="date"
+                                                value="<%= formData.date || '' %>"
+                                               required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="time" class="form-label required">Appointment Time</label>
+                                        <input type="time"
+                                                class="form-control"
+                                                id="time"
+                                                name="time"
+                                                value="<%= formData.time || '' %>"
+                                               required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="location" class="form-label required">Location</label>
+                                        <input type="text"
+                                                class="form-control"
+                                                id="location"
+                                                name="location"
+                                                value="<%= formData.location || (user.clinicName || '') %>"
+                                               placeholder="e.g., Main clinic, Room 3"
+                                               required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notes" class="form-label">Appointment Notes</label>
+                                <textarea class="form-control"
+                                           id="notes"
+                                           name="notes"
+                                           rows="4"
+                                          placeholder="e.g., Follow-up consultation, Lab results review, routine check-up..."><%= formData.notes || '' %></textarea>
+                            </div>
+
+                            <div class="d-flex gap-3 flex-wrap">
+                                <button type="submit" class="btn btn-success-custom btn-custom" id="submitBtn">
+                                    <i class="bi bi-calendar-plus me-2"></i>Schedule Appointment
+                                </button>
+                                <a href="/doctor/dashboard" class="btn btn-outline-secondary-custom btn-custom">
+                                    <i class="bi bi-x-circle me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Helper Card -->
+                <div class="helper-card animate-fade-in" style="animation-delay: 0.4s">
+                    <div class="card-body p-4">
+                        <h6 class="helper-title">
+                            <i class="bi bi-info-circle text-success me-2"></i>Appointment Reminders & Tips
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="helper-list">
+                                    <li>
+                                        <i class="bi bi-telegram text-primary"></i>
+                                        Patient will receive Telegram reminder 1 day before
+                                    </li>
+                                    <li>
+                                        <i class="bi bi-clock text-warning"></i>
+                                        Reminders sent daily at 9:00 AM
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="helper-list">
+                                    <li>
+                                        <i class="bi bi-geo-alt text-danger"></i>
+                                        Include specific location details
+                                    </li>
+                                    <li>
+                                        <i class="bi bi-chat-left-text text-info"></i>
+                                        Add relevant notes for the patient
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-// Set today as minimum date
-document.getElementById('date').min = new Date().toISOString().split('T')[0];
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today as minimum date
+            const dateInput = document.getElementById('date');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
 
-// Auto-fill location with clinic name if available
-document.addEventListener('DOMContentLoaded', function() {
-    const locationField = document.getElementById('location');
-    if (!locationField.value && '<%= user.clinicName %>') {
-        locationField.value = '<%= user.clinicName %>';
-    }
-});
-</script>
+            // Auto-fill location with clinic name if available
+            const locationField = document.getElementById('location');
+            const clinicName = '<%= user.clinicName || "" %>';
+            if (!locationField.value && clinicName) {
+                locationField.value = clinicName;
+            }
+
+            // Form validation and enhancement
+            const form = document.getElementById('appointmentForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Add focus effects to form groups
+            const formControls = document.querySelectorAll('.form-control, .form-select');
+            formControls.forEach(control => {
+                control.addEventListener('focus', function() {
+                    this.closest('.form-group').classList.add('focused');
+                });
+                
+                control.addEventListener('blur', function() {
+                    this.closest('.form-group').classList.remove('focused');
+                });
+            });
+
+            // Form submission with loading state
+            form.addEventListener('submit', function(e) {
+                // Add loading state to submit button
+                submitBtn.classList.add('btn-loading');
+                submitBtn.disabled = true;
+                
+                // Validate time is not in the past for today's date
+                const selectedDate = dateInput.value;
+                const selectedTime = document.getElementById('time').value;
+                
+                if (selectedDate === today && selectedTime) {
+                    const now = new Date();
+                    const selectedDateTime = new Date(`${selectedDate}T${selectedTime}`);
+                    
+                    if (selectedDateTime <= now) {
+                        e.preventDefault();
+                        alert('Please select a future time for today\'s appointments.');
+                        submitBtn.classList.remove('btn-loading');
+                        submitBtn.disabled = false;
+                        return;
+                    }
+                }
+            });
+
+            // Auto-suggest common appointment times
+            const timeInput = document.getElementById('time');
+            const commonTimes = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
+            
+            timeInput.addEventListener('focus', function() {
+                if (!this.value) {
+                    // Suggest next available common time
+                    const now = new Date();
+                    const currentHour = now.getHours();
+                    const suggestedTime = commonTimes.find(time => {
+                        const hour = parseInt(time.split(':')[0]);
+                        return hour > currentHour;
+                    }) || commonTimes[0];
+                    
+                    this.value = suggestedTime;
+                }
+            });
+
+            // Patient selection enhancement
+            const patientSelect = document.getElementById('patientId');
+            patientSelect.addEventListener('change', function() {
+                if (this.value) {
+                    // Add visual feedback
+                    this.style.borderColor = '#28a745';
+                    this.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+                } else {
+                    this.style.borderColor = '';
+                    this.style.backgroundColor = '';
+                }
+            });
+
+            // Notes field enhancement
+            const notesField = document.getElementById('notes');
+            const commonNotes = [
+                'Follow-up consultation',
+                'Lab results review',
+                'Routine check-up',
+                'Medication review',
+                'Physical examination'
+            ];
+
+            notesField.addEventListener('focus', function() {
+                if (!this.value) {
+                    this.placeholder = 'Common notes: ' + commonNotes.join(', ');
+                }
+            });
+
+            notesField.addEventListener('blur', function() {
+                this.placeholder = 'e.g., Follow-up consultation, Lab results review, routine check-up...';
+            });
+
+            // Add smooth animations to form elements
+            const animatedElements = document.querySelectorAll('.form-group');
+            animatedElements.forEach((element, index) => {
+                element.style.animationDelay = `${0.1 * index}s`;
+                element.classList.add('animate-fade-in');
+            });
+        });
+    </script>
+</body>
+</html>

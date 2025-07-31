@@ -1,245 +1,650 @@
-<div class="container py-4">
-    <!-- Header -->
-    <div class="row align-items-center mb-4">
-        <div class="col">
-            <h1 class="h2 fw-bold mb-1">
-                <i class="bi bi-speedometer2 text-primary me-2"></i>Patient Dashboard
-            </h1>
-            <p class="text-muted mb-0">Welcome back, <%= user.name %></p>
-        </div>
-        <div class="col-auto">
-            <% if (!stats.telegramConnected) { %>
-                <a href="/patient/connect-bot" class="btn btn-warning">
-                    <i class="bi bi-telegram me-1"></i>Connect Telegram
-                </a>
-            <% } else { %>
-                <span class="badge bg-success fs-6">
-                    <i class="bi bi-telegram me-1"></i>Telegram Connected
-                </span>
-            <% } %>
-        </div>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - MediCare</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 1.5rem;
+        }
 
-    <!-- Stats Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary bg-gradient rounded-circle p-3">
-                                <i class="bi bi-prescription2 text-white fs-4"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold fs-4"><%= stats.activeMedications %></div>
-                            <div class="text-muted small">Active Medications</div>
-                        </div>
-                    </div>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-gradient {
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+        }
+
+        .bg-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,117.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"%3E%3C/path%3E%3C/svg%3E') no-repeat bottom;
+            background-size: cover;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Styles */
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dashboard-title {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-text {
+            color: #6c757d;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Card Styles */
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .icon-wrapper {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .icon-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: inherit;
+            border-radius: 50%;
+            filter: blur(10px);
+            opacity: 0.3;
+            transform: scale(1.2);
+        }
+
+        .icon-wrapper i {
+            position: relative;
+            z-index: 1;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .icon-primary { background: var(--primary-gradient); }
+        .icon-success { background: var(--success-gradient); }
+        .icon-warning { background: var(--warning-gradient); }
+        .icon-info { background: var(--info-gradient); }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Content Cards */
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .card-header-custom {
+            background: transparent;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1.5rem 2rem;
+        }
+
+        .card-title-custom {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .card-body-custom {
+            padding: 2rem;
+        }
+
+        /* Button Styles */
+        .btn-custom {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+
+        .btn-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-custom:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success-custom {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .btn-success-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-warning-custom {
+            background: var(--warning-gradient);
+            color: white;
+        }
+
+        .btn-warning-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+        }
+
+        /* List Items */
+        .list-item-custom {
+            background: rgba(248, 249, 250, 0.5);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .list-item-custom:hover {
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateX(5px);
+        }
+
+        .medication-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .medication-info {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .time-badge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.25rem;
+            display: inline-block;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .badge-connected {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .badge-upcoming {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        /* Alert Styles */
+        .alert-custom {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border-left: 4px solid #f39c12;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #718096;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-title {
+                font-size: 2rem;
+            }
+            
+            .stat-number {
+                font-size: 2.5rem;
+            }
+            
+            .dashboard-header {
+                padding: 1.5rem;
+            }
+            
+            .stat-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5 min-vh-100 bg-gradient">
+        <!-- Header -->
+        <div class="dashboard-header animate-fade-in">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h1 class="dashboard-title">
+                        <i class="bi bi-speedometer2 me-3"></i>Patient Dashboard
+                    </h1>
+                    <p class="welcome-text">Welcome back, <%= user.name %></p>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-success bg-gradient rounded-circle p-3">
-                                <i class="bi bi-calendar-event text-white fs-4"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold fs-4"><%= stats.upcomingAppointments %></div>
-                            <div class="text-muted small">Upcoming Visits</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-warning bg-gradient rounded-circle p-3">
-                                <i class="bi bi-clock text-white fs-4"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold fs-4"><%= stats.todaysMedications %></div>
-                            <div class="text-muted small">Today's Medications</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-<%= stats.telegramConnected ? 'info' : 'secondary' %> bg-gradient rounded-circle p-3">
-                                <i class="bi bi-telegram text-white fs-4"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold fs-6">
-                                <%= stats.telegramConnected ? 'Connected' : 'Not Connected' %>
-                            </div>
-                            <div class="text-muted small">Telegram Bot</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <!-- Today's Medications -->
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0 pb-0">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-calendar-day text-warning me-2"></i>Today's Medications
-                        </h5>
-                        <a href="/patient/medications" class="btn btn-sm btn-outline-warning">
-                            <i class="bi bi-eye me-1"></i>View All
+                <div class="col-auto">
+                    <% if (!stats.telegramConnected) { %>
+                        <a href="/patient/connect-bot" class="btn btn-warning-custom btn-custom">
+                            <i class="bi bi-telegram me-2"></i>Connect Telegram
                         </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <% if (todaysMedications.length > 0) { %>
-                        <div class="list-group list-group-flush">
-                            <% todaysMedications.forEach(medication => { %>
-                                <div class="list-group-item px-0 py-3">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="mb-1 fw-semibold">
-                                                <i class="bi bi-capsule text-primary me-2"></i>
-                                                <%= medication.name %>
-                                            </h6>
-                                            <p class="mb-1 text-muted small">
-                                                Dosage: <%= medication.dosage %>
-                                            </p>
-                                            <div class="d-flex flex-wrap gap-1">
-                                                <% medication.timesPerDay.forEach(time => { %>
-                                                    <span class="badge bg-light text-dark">
-                                                        <i class="bi bi-clock me-1"></i><%= time %>
-                                                    </span>
-                                                <% }) %>
-                                            </div>
-                                            <% if (medication.instructions) { %>
-                                                <small class="text-muted d-block mt-1">
-                                                    <i class="bi bi-info-circle me-1"></i>
-                                                    <%= medication.instructions %>
-                                                </small>
-                                            <% } %>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        </div>
                     <% } else { %>
-                        <div class="text-center py-4">
-                            <i class="bi bi-calendar-day text-muted fs-1"></i>
-                            <p class="text-muted mt-2">No medications scheduled for today</p>
-                        </div>
+                        <span class="status-badge badge-connected">
+                            <i class="bi bi-telegram me-2"></i>Telegram Connected
+                        </span>
                     <% } %>
                 </div>
             </div>
         </div>
 
-        <!-- Upcoming Appointments -->
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0 pb-0">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-calendar-event text-success me-2"></i>Upcoming Appointments
-                        </h5>
-                        <a href="/patient/appointments" class="btn btn-sm btn-outline-success">
-                            <i class="bi bi-eye me-1"></i>View All
-                        </a>
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card animate-fade-in" style="animation-delay: 0.1s">
+                    <div class="icon-wrapper icon-primary">
+                        <i class="bi bi-prescription2"></i>
+                    </div>
+                    <div class="stat-number"><%= stats.activeMedications %></div>
+                    <div class="stat-label">Active Medications</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card animate-fade-in" style="animation-delay: 0.2s">
+                    <div class="icon-wrapper icon-success">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
+                    <div class="stat-number"><%= stats.upcomingAppointments %></div>
+                    <div class="stat-label">Upcoming Visits</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card animate-fade-in" style="animation-delay: 0.3s">
+                    <div class="icon-wrapper icon-warning">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                    <div class="stat-number"><%= stats.todaysMedications %></div>
+                    <div class="stat-label">Today's Medications</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card animate-fade-in" style="animation-delay: 0.4s">
+                    <div class="icon-wrapper <%= stats.telegramConnected ? 'icon-info' : 'icon-secondary' %>">
+                        <i class="bi bi-telegram"></i>
+                    </div>
+                    <div class="stat-number" style="font-size: 1.5rem;">
+                        <%= stats.telegramConnected ? 'Connected' : 'Not Connected' %>
+                    </div>
+                    <div class="stat-label">Telegram Bot</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Today's Medications -->
+            <div class="col-lg-6">
+                <div class="content-card animate-fade-in" style="animation-delay: 0.5s">
+                    <div class="card-header-custom">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h5 class="card-title-custom">
+                                <i class="bi bi-calendar-day text-warning me-2"></i>Today's Medications
+                            </h5>
+                            <a href="/patient/medications" class="btn btn-warning-custom btn-custom btn-sm">
+                                <i class="bi bi-eye me-1"></i>View All
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <% if (todaysMedications.length > 0) { %>
+                            <% todaysMedications.forEach(medication => { %>
+                                <div class="list-item-custom">
+                                    <div class="medication-name">
+                                        <i class="bi bi-capsule text-primary me-2"></i>
+                                        <%= medication.name %>
+                                    </div>
+                                    <div class="medication-info">
+                                        <strong>Dosage:</strong> <%= medication.dosage %>
+                                    </div>
+                                    <div class="mb-2">
+                                        <% medication.timesPerDay.forEach(time => { %>
+                                            <span class="time-badge">
+                                                <i class="bi bi-clock me-1"></i><%= time %>
+                                            </span>
+                                        <% }) %>
+                                    </div>
+                                    <% if (medication.instructions) { %>
+                                        <div class="medication-info">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            <%= medication.instructions %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <i class="bi bi-calendar-day"></i>
+                                <p>No medications scheduled for today</p>
+                            </div>
+                        <% } %>
                     </div>
                 </div>
-                <div class="card-body">
-                    <% if (upcomingAppointments.length > 0) { %>
-                        <div class="list-group list-group-flush">
+            </div>
+
+            <!-- Upcoming Appointments -->
+            <div class="col-lg-6">
+                <div class="content-card animate-fade-in" style="animation-delay: 0.6s">
+                    <div class="card-header-custom">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h5 class="card-title-custom">
+                                <i class="bi bi-calendar-event text-success me-2"></i>Upcoming Appointments
+                            </h5>
+                            <a href="/patient/appointments" class="btn btn-success-custom btn-custom btn-sm">
+                                <i class="bi bi-eye me-1"></i>View All
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <% if (upcomingAppointments.length > 0) { %>
                             <% upcomingAppointments.forEach(appointment => { %>
-                                <div class="list-group-item px-0 py-3">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="mb-1 fw-semibold">
-                                                <i class="bi bi-person-badge text-primary me-2"></i>
-                                                Dr. <%= appointment.doctorId.name %>
-                                            </h6>
-                                            <p class="mb-1 text-muted small">
-                                                <%= appointment.doctorId.clinicName %>
-                                            </p>
-                                            <p class="mb-1">
-                                                <i class="bi bi-calendar me-1"></i>
-                                                <%= new Date(appointment.date).toLocaleDateString('en-US', { 
-                                                    weekday: 'long', 
-                                                    year: 'numeric', 
-                                                    month: 'long', 
-                                                    day: 'numeric' 
-                                                }) %>
-                                            </p>
-                                            <small class="text-muted">
-                                                <i class="bi bi-clock me-1"></i><%= appointment.time %>
-                                                <span class="mx-2">•</span>
-                                                <i class="bi bi-geo-alt me-1"></i><%= appointment.location %>
-                                            </small>
-                                            <% if (appointment.notes) { %>
-                                                <div class="mt-2">
-                                                    <small class="text-muted">
-                                                        <i class="bi bi-chat-left-text me-1"></i>
-                                                        <%= appointment.notes %>
-                                                    </small>
-                                                </div>
-                                            <% } %>
+                                <div class="list-item-custom">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div class="medication-name">
+                                            <i class="bi bi-person-badge text-primary me-2"></i>
+                                            Dr. <%= appointment.doctorId.name %>
                                         </div>
-                                        <span class="badge bg-primary">
+                                        <span class="status-badge badge-upcoming">
                                             <%= new Date(appointment.date) > new Date() ? 'Upcoming' : 'Today' %>
                                         </span>
                                     </div>
+                                    <div class="medication-info mb-2">
+                                        <%= appointment.doctorId.clinicName %>
+                                    </div>
+                                    <div class="medication-info mb-2">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        <%= new Date(appointment.date).toLocaleDateString('en-US', {
+                                             weekday: 'long',
+                                             year: 'numeric',
+                                             month: 'long',
+                                             day: 'numeric'
+                                         }) %>
+                                    </div>
+                                    <div class="medication-info">
+                                        <i class="bi bi-clock me-1"></i><%= appointment.time %>
+                                        <span class="mx-2">•</span>
+                                        <i class="bi bi-geo-alt me-1"></i><%= appointment.location %>
+                                    </div>
+                                    <% if (appointment.notes) { %>
+                                        <div class="medication-info mt-2">
+                                            <i class="bi bi-chat-left-text me-1"></i>
+                                            <%= appointment.notes %>
+                                        </div>
+                                    <% } %>
                                 </div>
                             <% }) %>
-                        </div>
-                    <% } else { %>
-                        <div class="text-center py-4">
-                            <i class="bi bi-calendar-event text-muted fs-1"></i>
-                            <p class="text-muted mt-2">No upcoming appointments</p>
-                        </div>
-                    <% } %>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Telegram Connection Alert -->
-    <% if (!stats.telegramConnected) { %>
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="alert alert-warning border-0 shadow-sm">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-exclamation-triangle fs-4 me-3"></i>
-                        <div class="flex-grow-1">
-                            <h6 class="alert-heading mb-1">Connect Telegram Bot for Reminders</h6>
-                            <p class="mb-0">
-                                Connect your Telegram account to receive automatic medication and appointment reminders.
-                            </p>
-                        </div>
-                        <a href="/patient/connect-bot" class="btn btn-warning">
-                            <i class="bi bi-telegram me-1"></i>Connect Now
-                        </a>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <i class="bi bi-calendar-event"></i>
+                                <p>No upcoming appointments</p>
+                            </div>
+                        <% } %>
                     </div>
                 </div>
             </div>
         </div>
-    <% } %>
-</div>
+
+        <!-- Telegram Connection Alert -->
+        <% if (!stats.telegramConnected) { %>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="alert-custom animate-fade-in" style="animation-delay: 0.7s">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle fs-2 me-3 text-warning"></i>
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-1">Connect Telegram Bot for Reminders</h6>
+                                <p class="mb-0">
+                                    Connect your Telegram account to receive automatic medication and appointment reminders.
+                                </p>
+                            </div>
+                            <a href="/patient/connect-bot" class="btn btn-warning-custom btn-custom ms-3">
+                                <i class="bi bi-telegram me-2"></i>Connect Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Add smooth scrolling and enhanced interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add loading animation to buttons
+            const buttons = document.querySelectorAll('.btn-custom');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.stat-card, .content-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Animate numbers on load
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(number => {
+                const finalValue = parseInt(number.textContent);
+                if (!isNaN(finalValue)) {
+                    let currentValue = 0;
+                    const increment = finalValue / 30;
+                    const timer = setInterval(() => {
+                        currentValue += increment;
+                        if (currentValue >= finalValue) {
+                            number.textContent = finalValue;
+                            clearInterval(timer);
+                        } else {
+                            number.textContent = Math.floor(currentValue);
+                        }
+                    }, 50);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,127 +1,758 @@
-<div class="container py-4">
-    <!-- Header -->
-    <div class="row align-items-center mb-4">
-        <div class="col">
-            <h1 class="h2 fw-bold mb-1">
-                <i class="bi bi-calendar-event text-success me-2"></i>My Appointments
-            </h1>
-            <p class="text-muted mb-0">View all your scheduled appointments</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Appointments - MediCare</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 1.5rem;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,117.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"%3E%3C/path%3E%3C/svg%3E') no-repeat bottom;
+            background-size: cover;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Styles */
+        .page-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--success-gradient);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .page-title {
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Button Styles */
+        .btn-custom {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+
+        .btn-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-custom:hover::before {
+            left: 100%;
+        }
+
+        .btn-outline-secondary-custom {
+            background: transparent;
+            border: 2px solid #6c757d;
+            color: #6c757d;
+        }
+
+        .btn-outline-secondary-custom:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Appointment Cards */
+        .appointment-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .appointment-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .appointment-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .appointment-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .appointment-card.past-appointment {
+            opacity: 0.8;
+        }
+
+        .appointment-card.past-appointment::before {
+            background: #6c757d;
+        }
+
+        .appointment-card.upcoming-appointment::before {
+            background: var(--success-gradient);
+        }
+
+        .appointment-card.today-appointment::before {
+            background: var(--warning-gradient);
+            animation: pulse 2s infinite;
+        }
+
+        /* Card Content */
+        .card-title-custom {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+
+        .doctor-name {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .clinic-info {
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .appointment-details {
+            background: rgba(248, 249, 250, 0.5);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .icon-primary { background: rgba(102, 126, 234, 0.1); color: #667eea; }
+        .icon-success { background: rgba(17, 153, 142, 0.1); color: #11998e; }
+        .icon-danger { background: rgba(255, 107, 107, 0.1); color: #ff6b6b; }
+        .icon-info { background: rgba(79, 172, 254, 0.1); color: #4facfe; }
+
+        .detail-content {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #718096;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.95rem;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .badge-scheduled { background: var(--primary-gradient); color: white; }
+        .badge-completed { background: var(--success-gradient); color: white; }
+        .badge-cancelled { background: var(--danger-gradient); color: white; }
+        .badge-past { background: #6c757d; color: white; }
+        .badge-today { background: var(--warning-gradient); color: white; animation: pulse 2s infinite; }
+
+        .reminder-badge {
+            background: var(--success-gradient);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Notes Section */
+        .notes-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border-left: 4px solid #4facfe;
+            margin-bottom: 1rem;
+        }
+
+        .notes-content {
+            color: #4a5568;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* Footer Section */
+        .appointment-footer {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: auto;
+        }
+
+        .appointment-status {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+        }
+
+        .empty-state i {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            opacity: 0.5;
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .empty-state h4 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            color: #718096;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+        }
+
+        .nav-pills .nav-link {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            border: none;
+            background: transparent;
+        }
+
+        .nav-pills .nav-link.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-pills .nav-link:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+            }
+            
+            .appointment-card {
+                margin-bottom: 1rem;
+            }
+
+            .detail-item {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+            }
+
+            .detail-icon {
+                margin-bottom: 0.5rem;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="page-header animate-fade-in">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h1 class="page-title">
+                        <i class="bi bi-calendar-event me-3"></i>My Appointments
+                    </h1>
+                    <p class="page-subtitle">View all your scheduled appointments</p>
+                </div>
+                <div class="col-auto">
+                    <a href="/patient/dashboard" class="btn btn-outline-secondary-custom btn-custom">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="col-auto">
-            <a href="/patient/dashboard" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
-            </a>
-        </div>
-    </div>
 
-    <!-- Appointments List -->
-    <% if (appointments.length > 0) { %>
-        <div class="row g-4">
-            <% appointments.forEach(appointment => { %>
-                <% 
-                const appointmentDate = new Date(appointment.date);
-                const today = new Date();
-                const isUpcoming = appointmentDate >= today;
-                const isPast = appointmentDate < today;
-                %>
-                <div class="col-lg-6">
-                    <div class="card border-0 shadow-sm h-100 <%= isPast ? 'opacity-75' : '' %>">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h5 class="card-title fw-bold mb-0">
-                                    <i class="bi bi-person-badge text-primary me-2"></i>
-                                    Dr. <%= appointment.doctorId.name %>
-                                </h5>
-                                <span class="badge bg-<%= 
-                                    appointment.status === 'scheduled' ? (isUpcoming ? 'primary' : 'secondary') : 
-                                    appointment.status === 'completed' ? 'success' : 
-                                    appointment.status === 'cancelled' ? 'danger' : 'warning' 
-                                %>">
-                                    <%= appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1) %>
-                                </span>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <small class="text-muted d-block">Clinic</small>
-                                <strong class="text-dark">
-                                    <%= appointment.doctorId.clinicName %>
-                                </strong>
-                            </div>
+        <!-- Filter Tabs -->
+        <% if (appointments.length > 0) { %>
+            <div class="filter-tabs animate-fade-in" style="animation-delay: 0.2s">
+                <ul class="nav nav-pills justify-content-center" id="appointmentTabs">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-filter="all">
+                            <i class="bi bi-calendar-event me-2"></i>All Appointments
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-filter="upcoming">
+                            <i class="bi bi-calendar-plus me-2"></i>Upcoming
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-filter="past">
+                            <i class="bi bi-calendar-check me-2"></i>Past
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        <% } %>
 
-                            <div class="mb-3">
-                                <div class="row g-2">
-                                    <div class="col-sm-6">
-                                        <small class="text-muted d-block mb-1">Date</small>
-                                        <div class="fw-semibold">
-                                            <i class="bi bi-calendar text-primary me-1"></i>
-                                            <%= appointmentDate.toLocaleDateString('en-US', { 
-                                                weekday: 'short',
-                                                month: 'short', 
-                                                day: 'numeric',
-                                                year: 'numeric'
-                                            }) %>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <small class="text-muted d-block mb-1">Time</small>
-                                        <div class="fw-semibold">
-                                            <i class="bi bi-clock text-success me-1"></i>
-                                            <%= appointment.time %>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <small class="text-muted d-block mb-1">Location</small>
-                                <div class="text-dark">
-                                    <i class="bi bi-geo-alt text-danger me-1"></i>
-                                    <%= appointment.location %>
-                                </div>
-                            </div>
-
-                            <% if (appointment.notes) { %>
-                                <div class="mb-3">
-                                    <small class="text-muted d-block mb-1">Notes</small>
-                                    <div class="bg-light rounded p-2 small">
-                                        <i class="bi bi-chat-left-text text-info me-1"></i>
-                                        <%= appointment.notes %>
-                                    </div>
-                                </div>
-                            <% } %>
-
-                            <div class="d-flex justify-content-between align-items-center mt-auto">
-                                <small class="text-muted">
-                                    <% if (isUpcoming && appointmentDate.toDateString() === new Date(Date.now() + 24*60*60*1000).toDateString()) { %>
-                                        <i class="bi bi-exclamation-circle text-warning me-1"></i>
-                                        Tomorrow
-                                    <% } else if (isUpcoming) { %>
-                                        <i class="bi bi-calendar-plus me-1"></i>
-                                        Upcoming
-                                    <% } else { %>
-                                        <i class="bi bi-calendar-check me-1"></i>
-                                        Past appointment
-                                    <% } %>
-                                </small>
-                                <% if (appointment.reminderSent && isUpcoming) { %>
-                                    <span class="badge bg-success">
-                                        <i class="bi bi-telegram me-1"></i>Reminder sent
+        <!-- Appointments List -->
+        <% if (appointments.length > 0) { %>
+            <div class="row g-4" id="appointmentsContainer">
+                <% appointments.forEach((appointment, index) => { %>
+                    <%
+                    const appointmentDate = new Date(appointment.date);
+                    const today = new Date();
+                    const tomorrow = new Date(today);
+                    tomorrow.setDate(today.getDate() + 1);
+                    
+                    const isUpcoming = appointmentDate >= today;
+                    const isPast = appointmentDate < today;
+                    const isToday = appointmentDate.toDateString() === today.toDateString();
+                    const isTomorrow = appointmentDate.toDateString() === tomorrow.toDateString();
+                    
+                    let cardClass = 'upcoming-appointment';
+                    let statusClass = 'badge-scheduled';
+                    let statusText = appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1);
+                    
+                    if (isPast) {
+                        cardClass = 'past-appointment';
+                        statusClass = 'badge-past';
+                    } else if (isToday) {
+                        cardClass = 'today-appointment';
+                        statusClass = 'badge-today';
+                        statusText = 'Today';
+                    } else if (appointment.status === 'completed') {
+                        statusClass = 'badge-completed';
+                    } else if (appointment.status === 'cancelled') {
+                        statusClass = 'badge-cancelled';
+                    }
+                    %>
+                    
+                    <div class="col-lg-6 appointment-item animate-fade-in" 
+                         style="animation-delay: <%= 0.1 * (index + 1) %>s"
+                         data-status="<%= isPast ? 'past' : 'upcoming' %>">
+                        <div class="appointment-card <%= cardClass %>">
+                            <div class="card-body p-4">
+                                <!-- Header -->
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title-custom mb-0">
+                                        <i class="bi bi-person-badge me-2"></i>
+                                        <span class="doctor-name">Dr. <%= appointment.doctorId.name %></span>
+                                    </h5>
+                                    <span class="status-badge <%= statusClass %>">
+                                        <% if (isToday) { %>
+                                            <i class="bi bi-exclamation-circle me-1"></i>
+                                        <% } else if (isPast) { %>
+                                            <i class="bi bi-check-circle me-1"></i>
+                                        <% } else { %>
+                                            <i class="bi bi-calendar-event me-1"></i>
+                                        <% } %>
+                                        <%= statusText %>
                                     </span>
+                                </div>
+
+                                <!-- Clinic Info -->
+                                <div class="clinic-info">
+                                    <div class="detail-label">Clinic</div>
+                                    <div class="detail-value">
+                                        <i class="bi bi-building text-primary me-2"></i>
+                                        <%= appointment.doctorId.clinicName %>
+                                    </div>
+                                </div>
+
+                                <!-- Appointment Details -->
+                                <div class="appointment-details">
+                                    <div class="row g-3">
+                                        <div class="col-sm-6">
+                                            <div class="detail-item">
+                                                <div class="detail-icon icon-primary">
+                                                    <i class="bi bi-calendar"></i>
+                                                </div>
+                                                <div class="detail-content">
+                                                    <div class="detail-label">Date</div>
+                                                    <div class="detail-value">
+                                                        <%= appointmentDate.toLocaleDateString('en-US', {
+                                                            weekday: 'short',
+                                                            month: 'short',
+                                                            day: 'numeric',
+                                                            year: 'numeric'
+                                                        }) %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="detail-item">
+                                                <div class="detail-icon icon-success">
+                                                    <i class="bi bi-clock"></i>
+                                                </div>
+                                                <div class="detail-content">
+                                                    <div class="detail-label">Time</div>
+                                                    <div class="detail-value"><%= appointment.time %></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="detail-item mt-3">
+                                        <div class="detail-icon icon-danger">
+                                            <i class="bi bi-geo-alt"></i>
+                                        </div>
+                                        <div class="detail-content">
+                                            <div class="detail-label">Location</div>
+                                            <div class="detail-value"><%= appointment.location %></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Notes -->
+                                <% if (appointment.notes) { %>
+                                    <div class="notes-section">
+                                        <div class="detail-label mb-2">
+                                            <i class="bi bi-chat-left-text me-1"></i>Notes
+                                        </div>
+                                        <p class="notes-content"><%= appointment.notes %></p>
+                                    </div>
                                 <% } %>
+
+                                <!-- Footer -->
+                                <div class="appointment-footer">
+                                    <div class="appointment-status">
+                                        <% if (isToday) { %>
+                                            <i class="bi bi-exclamation-circle text-warning me-2"></i>
+                                            <span class="text-warning fw-bold">Today's Appointment</span>
+                                        <% } else if (isTomorrow) { %>
+                                            <i class="bi bi-calendar-plus text-info me-2"></i>
+                                            <span class="text-info">Tomorrow</span>
+                                        <% } else if (isUpcoming) { %>
+                                            <i class="bi bi-calendar-event text-primary me-2"></i>
+                                            <span>Upcoming</span>
+                                        <% } else { %>
+                                            <i class="bi bi-calendar-check text-muted me-2"></i>
+                                            <span>Past appointment</span>
+                                        <% } %>
+                                    </div>
+                                    
+                                    <% if (appointment.reminderSent && isUpcoming) { %>
+                                        <div class="reminder-badge">
+                                            <i class="bi bi-telegram me-1"></i>Reminder sent
+                                        </div>
+                                    <% } %>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            <% }) %>
-        </div>
-    <% } else { %>
-        <div class="text-center py-5">
-            <i class="bi bi-calendar-event text-muted" style="font-size: 4rem;"></i>
-            <h4 class="mt-3 text-muted">No Appointments Scheduled</h4>
-            <p class="text-muted">Your doctor hasn't scheduled any appointments yet.</p>
-            <a href="/patient/dashboard" class="btn btn-primary">
-                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
-            </a>
-        </div>
-    <% } %>
-</div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <div class="empty-state animate-fade-in" style="animation-delay: 0.2s">
+                <i class="bi bi-calendar-event"></i>
+                <h4>No Appointments Scheduled</h4>
+                <p>Your doctor hasn't scheduled any appointments yet.</p>
+                <a href="/patient/dashboard" class="btn btn-primary-custom btn-custom">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filter functionality
+            const filterButtons = document.querySelectorAll('[data-filter]');
+            const appointmentItems = document.querySelectorAll('.appointment-item');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Update active button
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filter appointments
+                    appointmentItems.forEach(item => {
+                        const status = item.getAttribute('data-status');
+                        
+                        if (filter === 'all' || filter === status) {
+                            item.style.display = 'block';
+                            item.style.animation = 'fadeInUp 0.6s ease-out';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Add hover effects to appointment cards
+            const appointmentCards = document.querySelectorAll('.appointment-card');
+            appointmentCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Highlight today's appointments
+            const todayCards = document.querySelectorAll('.today-appointment');
+            todayCards.forEach(card => {
+                // Add special attention animation
+                setInterval(() => {
+                    card.style.boxShadow = '0 20px 40px rgba(240, 147, 251, 0.3)';
+                    setTimeout(() => {
+                        card.style.boxShadow = '';
+                    }, 1000);
+                }, 3000);
+            });
+
+            // Auto-scroll to today's appointment if exists
+            const todayAppointment = document.querySelector('.today-appointment');
+            if (todayAppointment) {
+                setTimeout(() => {
+                    todayAppointment.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                }, 1000);
+            }
+
+            // Add staggered animations
+            const animatedElements = document.querySelectorAll('.appointment-item');
+            animatedElements.forEach((element, index) => {
+                element.style.animationDelay = `${0.1 * (index + 1)}s`;
+                element.classList.add('animate-fade-in');
+            });
+
+            // Count appointments by status
+            const upcomingCount = document.querySelectorAll('[data-status="upcoming"]').length;
+            const pastCount = document.querySelectorAll('[data-status="past"]').length;
+            
+            // Update filter button text with counts
+            const allButton = document.querySelector('[data-filter="all"]');
+            const upcomingButton = document.querySelector('[data-filter="upcoming"]');
+            const pastButton = document.querySelector('[data-filter="past"]');
+            
+            if (allButton) {
+                allButton.innerHTML = `<i class="bi bi-calendar-event me-2"></i>All Appointments (${upcomingCount + pastCount})`;
+            }
+            if (upcomingButton) {
+                upcomingButton.innerHTML = `<i class="bi bi-calendar-plus me-2"></i>Upcoming (${upcomingCount})`;
+            }
+            if (pastButton) {
+                pastButton.innerHTML = `<i class="bi bi-calendar-check me-2"></i>Past (${pastCount})`;
+            }
+        });
+    </script>
+</body>
+</html>

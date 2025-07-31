@@ -1,165 +1,841 @@
-<div class="container py-4">
-    <!-- Header -->
-    <div class="row align-items-center mb-4">
-        <div class="col">
-            <h1 class="h2 fw-bold mb-1">
-                <i class="bi bi-telegram text-primary me-2"></i>Connect Telegram Bot
-            </h1>
-            <p class="text-muted mb-0">Set up automatic reminders for your medications and appointments</p>
-        </div>
-        <div class="col-auto">
-            <a href="/patient/dashboard" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
-            </a>
-        </div>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Telegram Bot - MediCare</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            --telegram-gradient: linear-gradient(135deg, #0088cc 0%, #229ed9 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 1.5rem;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
 
-    <!-- Success/Error Messages -->
-    <% if (typeof query !== 'undefined' && query.success === 'disconnected') { %>
-        <div class="alert alert-success alert-dismissible fade show">
-            <i class="bi bi-check-circle me-2"></i>
-            Telegram bot disconnected successfully!
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <% } else if (typeof query !== 'undefined' && query.error === 'disconnect-failed') { %>
-        <div class="alert alert-danger alert-dismissible fade show">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            Failed to disconnect bot. Please try again.
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <% } %>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <% if (telegramConnected) { %>
-                <!-- Connected State -->
-                <div class="card border-0 shadow-sm border-success">
-                    <div class="card-body text-center p-5">
-                        <div class="mb-4">
-                            <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                <i class="bi bi-check-circle text-white fs-1"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-success fw-bold mb-3">Telegram Bot Connected!</h3>
-                        <p class="lead text-muted mb-4">
-                            Your account is successfully connected to the MediRemind Telegram bot. 
-                            You'll receive automatic reminders for:
-                        </p>
-                        
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <div class="bg-light rounded p-3">
-                                    <i class="bi bi-capsule text-primary fs-3 mb-2"></i>
-                                    <h6 class="fw-semibold">Medication Reminders</h6>
-                                    <small class="text-muted">At scheduled times daily</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="bg-light rounded p-3">
-                                    <i class="bi bi-calendar-event text-success fs-3 mb-2"></i>
-                                    <h6 class="fw-semibold">Appointment Reminders</h6>
-                                    <small class="text-muted">1 day before visits</small>
-                                </div>
-                            </div>
-                        </div>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-                        <form action="/patient/disconnect-bot" method="POST" style="display: inline;">
-                            <button type="submit" class="btn btn-outline-danger">
-                                <i class="bi bi-x-circle me-1"></i>Disconnect Bot
-                            </button>
-                        </form>
-                    </div>
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,117.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"%3E%3C/path%3E%3C/svg%3E') no-repeat bottom;
+            background-size: cover;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Styles */
+        .page-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--telegram-gradient);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .page-title {
+            background: var(--telegram-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Button Styles */
+        .btn-custom {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+
+        .btn-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-custom:hover::before {
+            left: 100%;
+        }
+
+        .btn-outline-secondary-custom {
+            background: transparent;
+            border: 2px solid #6c757d;
+            color: #6c757d;
+        }
+
+        .btn-outline-secondary-custom:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-telegram {
+            background: var(--telegram-gradient);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-telegram::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-telegram:hover::before {
+            left: 100%;
+        }
+
+        .btn-telegram:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 136, 204, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-outline-danger-custom {
+            background: transparent;
+            border: 2px solid #dc3545;
+            color: #dc3545;
+        }
+
+        .btn-outline-danger-custom:hover {
+            background: var(--danger-gradient);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+        }
+
+        /* Card Styles */
+        .connection-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .connection-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--success-gradient);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .connection-card.not-connected::before {
+            background: var(--telegram-gradient);
+        }
+
+        .connection-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        /* Icon Styles */
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: inherit;
+            border-radius: 50%;
+            filter: blur(15px);
+            opacity: 0.4;
+            transform: scale(1.3);
+        }
+
+        .status-icon i {
+            position: relative;
+            z-index: 1;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .icon-success { background: var(--success-gradient); }
+        .icon-telegram { background: var(--telegram-gradient); }
+
+        /* Step Indicators */
+        .step-indicator {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: inherit;
+            border-radius: 50%;
+            filter: blur(10px);
+            opacity: 0.3;
+            transform: scale(1.2);
+        }
+
+        .step-indicator span {
+            position: relative;
+            z-index: 1;
+            font-weight: 700;
+            color: white;
+        }
+
+        .step-1 { background: var(--primary-gradient); }
+        .step-2 { background: var(--success-gradient); }
+        .step-3 { background: var(--warning-gradient); }
+
+        /* Feature Cards */
+        .feature-card {
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-description {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        /* Command Box */
+        .command-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            border-left: 4px solid #0088cc;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .command-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230088cc" opacity="0.1"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>') no-repeat center;
+            background-size: contain;
+            opacity: 0.1;
+        }
+
+        .command-item {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .command-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .command-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .command-code:hover {
+            background: #4a5568;
+            transform: translateY(-1px);
+        }
+
+        .command-description {
+            color: #718096;
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Benefits Section */
+        .benefits-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .benefits-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .benefit-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .benefit-icon {
+            color: #28a745;
+            margin-right: 0.75rem;
+            font-size: 1rem;
+        }
+
+        /* Alert Styles */
+        .alert-custom {
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            animation: slideInDown 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .alert-success-custom {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+
+        .alert-danger-custom {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Copy to Clipboard */
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 0.25rem;
+            color: #e2e8f0;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .command-code:hover .copy-button {
+            opacity: 1;
+        }
+
+        .copy-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+            }
+            
+            .status-icon {
+                width: 70px;
+                height: 70px;
+            }
+
+            .status-icon i {
+                font-size: 2rem;
+            }
+
+            .step-indicator {
+                width: 45px;
+                height: 45px;
+            }
+
+            .btn-telegram {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="page-header animate-fade-in">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h1 class="page-title">
+                        <i class="bi bi-telegram me-3"></i>Connect Telegram Bot
+                    </h1>
+                    <p class="page-subtitle">Set up automatic reminders for your medications and appointments</p>
                 </div>
-            <% } else { %>
-                <!-- Connection Instructions -->
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                                <i class="bi bi-telegram text-white fs-1"></i>
+                <div class="col-auto">
+                    <a href="/patient/dashboard" class="btn btn-outline-secondary-custom btn-custom">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <% if (typeof query !== 'undefined' && query.success === 'disconnected') { %>
+            <div class="alert alert-success-custom alert-custom alert-dismissible fade show animate-fade-in">
+                <i class="bi bi-check-circle me-2"></i>
+                Telegram bot disconnected successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% } else if (typeof query !== 'undefined' && query.error === 'disconnect-failed') { %>
+            <div class="alert alert-danger-custom alert-custom alert-dismissible fade show animate-fade-in">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Failed to disconnect bot. Please try again.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% } %>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <% if (telegramConnected) { %>
+                    <!-- Connected State -->
+                    <div class="connection-card animate-fade-in" style="animation-delay: 0.2s">
+                        <div class="card-body text-center p-5">
+                            <div class="status-icon icon-success animate-pulse">
+                                <i class="bi bi-check-circle"></i>
                             </div>
-                            <h3 class="fw-bold mb-2">Connect to MediRemind Bot</h3>
-                            <p class="text-muted">Follow these simple steps to set up your reminders</p>
+                            
+                            <h3 class="fw-bold mb-3" style="background: var(--success-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                Telegram Bot Connected!
+                            </h3>
+                            
+                            <p class="lead text-muted mb-4">
+                                Your account is successfully connected to the MediRemind Telegram bot.
+                                You'll receive automatic reminders for:
+                            </p>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <div class="feature-card">
+                                        <i class="bi bi-capsule text-primary feature-icon"></i>
+                                        <h6 class="feature-title">Medication Reminders</h6>
+                                        <p class="feature-description">At scheduled times daily</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="feature-card">
+                                        <i class="bi bi-calendar-event text-success feature-icon"></i>
+                                        <h6 class="feature-title">Appointment Reminders</h6>
+                                        <p class="feature-description">1 day before visits</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <form action="/patient/disconnect-bot" method="POST" style="display: inline;" id="disconnectForm">
+                                <button type="submit" class="btn btn-outline-danger-custom btn-custom" id="disconnectBtn">
+                                    <i class="bi bi-x-circle me-2"></i>Disconnect Bot
+                                </button>
+                            </form>
                         </div>
+                    </div>
+                <% } else { %>
+                    <!-- Connection Instructions -->
+                    <div class="connection-card not-connected animate-fade-in" style="animation-delay: 0.2s">
+                        <div class="card-body p-5">
+                            <div class="text-center mb-4">
+                                <div class="status-icon icon-telegram">
+                                    <i class="bi bi-telegram"></i>
+                                </div>
+                                <h3 class="fw-bold mb-2" style="background: var(--telegram-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                    Connect to MediRemind Bot
+                                </h3>
+                                <p class="text-muted">Follow these simple steps to set up your reminders</p>
+                            </div>
 
-                        <div class="row g-4">
-                            <div class="col-md-4">
-                                <div class="text-center">
-                                    <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
-                                        <span class="text-white fw-bold">1</span>
+                            <!-- Steps -->
+                            <div class="row g-4 mb-5">
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="step-indicator step-1">
+                                            <span>1</span>
+                                        </div>
+                                        <h6 class="fw-semibold mb-2">Open Telegram</h6>
+                                        <p class="text-muted small">Launch your Telegram app on your phone or computer</p>
                                     </div>
-                                    <h6 class="fw-semibold mb-2">Open Telegram</h6>
-                                    <p class="text-muted small">Launch your Telegram app on your phone or computer</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="step-indicator step-2">
+                                            <span>2</span>
+                                        </div>
+                                        <h6 class="fw-semibold mb-2">Find the Bot</h6>
+                                        <p class="text-muted small">Search for @medi_remind_bot or click the button below</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="step-indicator step-3">
+                                            <span>3</span>
+                                        </div>
+                                        <h6 class="fw-semibold mb-2">Connect Account</h6>
+                                        <p class="text-muted small">Use the /connect command with your email</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="text-center">
-                                    <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
-                                        <span class="text-white fw-bold">2</span>
-                                    </div>
-                                    <h6 class="fw-semibold mb-2">Find the Bot</h6>
-                                    <p class="text-muted small">Search for @medi_remind_bot or click the button below</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="text-center">
-                                    <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
-                                        <span class="text-white fw-bold">3</span>
-                                    </div>
-                                    <h6 class="fw-semibold mb-2">Connect Account</h6>
-                                    <p class="text-muted small">Use the /connect command with your email</p>
-                                </div>
-                            </div>
-                        </div>
 
-                        <hr class="my-4">
+                            <!-- Bot Link -->
+                            <div class="text-center mb-4">
+                                <a href="https://t.me/medi_remind_bot" target="_blank" class="btn-telegram">
+                                    <i class="bi bi-telegram me-2"></i>Open MediRemind Bot
+                                </a>
+                            </div>
 
-                        <div class="text-center">
-                            <a href="https://t.me/medi_remind_bot" target="_blank" class="btn btn-primary btn-lg mb-3">
-                                <i class="bi bi-telegram me-2"></i>Open MediRemind Bot
-                            </a>
-                            <div class="bg-light rounded p-3 text-start">
-                                <h6 class="fw-semibold mb-2">
+                            <!-- Commands -->
+                            <div class="command-box">
+                                <h6 class="fw-semibold mb-3">
                                     <i class="bi bi-chat-left-text text-primary me-2"></i>Commands to use:
                                 </h6>
-                                <code class="d-block mb-1">/start</code>
-                                <small class="text-muted d-block mb-2">Start the bot and see welcome message</small>
                                 
-                                <code class="d-block mb-1">/connect <%= user.email %></code>
-                                <small class="text-muted d-block mb-2">Connect your MediRemind account</small>
-                                
-                                <code class="d-block mb-1">/status</code>
-                                <small class="text-muted d-block">Check your connection status</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                <div class="command-item">
+                                    <div class="command-code" onclick="copyToClipboard('/start')">
+                                        /start
+                                        <button class="copy-button" title="Copy to clipboard">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                    <p class="command-description">Start the bot and see welcome message</p>
+                                </div>
 
-                <!-- Benefits Card -->
-                <div class="card border-0 bg-light mt-4">
-                    <div class="card-body">
-                        <h6 class="fw-bold mb-3">
-                            <i class="bi bi-star text-warning me-2"></i>Benefits of Connecting
-                        </h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <ul class="list-unstyled small">
-                                    <li><i class="bi bi-check2 text-success me-2"></i>Never miss medication times</li>
-                                    <li><i class="bi bi-check2 text-success me-2"></i>Get appointment reminders</li>
-                                    <li><i class="bi bi-check2 text-success me-2"></i>Instant notifications on your phone</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <ul class="list-unstyled small">
-                                    <li><i class="bi bi-check2 text-success me-2"></i>No additional apps needed</li>
-                                    <li><i class="bi bi-check2 text-success me-2"></i>Works on all devices</li>
-                                    <li><i class="bi bi-check2 text-success me-2"></i>Free and secure</li>
-                                </ul>
+                                <div class="command-item">
+                                    <div class="command-code" onclick="copyToClipboard('/connect <%= user.email %>')">
+                                        /connect <%= user.email %>
+                                        <button class="copy-button" title="Copy to clipboard">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                    <p class="command-description">Connect your MediRemind account</p>
+                                </div>
+
+                                <div class="command-item">
+                                    <div class="command-code" onclick="copyToClipboard('/status')">
+                                        /status
+                                        <button class="copy-button" title="Copy to clipboard">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                    <p class="command-description">Check your connection status</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            <% } %>
+
+                    <!-- Benefits Card -->
+                    <div class="benefits-card animate-fade-in" style="animation-delay: 0.4s">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-3">
+                                <i class="bi bi-star text-warning me-2"></i>Benefits of Connecting
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="benefit-item">
+                                        <i class="bi bi-check2 benefit-icon"></i>
+                                        <span>Never miss medication times</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <i class="bi bi-check2 benefit-icon"></i>
+                                        <span>Get appointment reminders</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <i class="bi bi-check2 benefit-icon"></i>
+                                        <span>Instant notifications on your phone</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="benefit-item">
+                                        <i class="bi bi-check2 benefit-icon"></i>
+                                        <span>No additional apps needed</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <i class="bi bi-check2 benefit-icon"></i>
+                                        <span>Works on all devices</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <i class="bi bi-check2 benefit-icon"></i>
+                                        <span>Free and secure</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Copy to clipboard functionality
+            window.copyToClipboard = function(text) {
+                navigator.clipboard.writeText(text).then(function() {
+                    // Show success feedback
+                    const button = event.target.closest('.command-code');
+                    const originalText = button.textContent.trim();
+                    
+                    // Temporarily change the button appearance
+                    button.style.background = '#28a745';
+                    button.innerHTML = '<i class="bi bi-check2"></i> Copied!';
+                    
+                    setTimeout(() => {
+                        button.style.background = '#2d3748';
+                        button.innerHTML = originalText + '<button class="copy-button" title="Copy to clipboard"><i class="bi bi-clipboard"></i></button>';
+                    }, 2000);
+                }).catch(function(err) {
+                    console.error('Could not copy text: ', err);
+                });
+            };
+
+            // Disconnect form confirmation
+            const disconnectForm = document.getElementById('disconnectForm');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            
+            if (disconnectForm) {
+                disconnectForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    if (confirm('Are you sure you want to disconnect the Telegram bot? You will no longer receive automatic reminders.')) {
+                        // Add loading state
+                        disconnectBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Disconnecting...';
+                        disconnectBtn.disabled = true;
+                        
+                        // Submit the form
+                        this.submit();
+                    }
+                });
+            }
+
+            // Add hover effects to feature cards
+            const featureCards = document.querySelectorAll('.feature-card');
+            featureCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add click effect to Telegram button
+            const telegramBtn = document.querySelector('.btn-telegram');
+            if (telegramBtn) {
+                telegramBtn.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            }
+
+            // Auto-dismiss alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert-custom');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    if (bsAlert) {
+                        bsAlert.close();
+                    }
+                }, 5000);
+            });
+
+            // Add smooth animations to elements
+            const animatedElements = document.querySelectorAll('.feature-card, .command-item, .benefit-item');
+            animatedElements.forEach((element, index) => {
+                element.style.animationDelay = `${0.1 * (index + 1)}s`;
+                element.classList.add('animate-fade-in');
+            });
+        });
+    </script>
+</body>
+</html>

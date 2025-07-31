@@ -1,157 +1,736 @@
-<div class="container py-4">
-    <!-- Header -->
-    <div class="row align-items-center mb-4">
-        <div class="col">
-            <h1 class="h2 fw-bold mb-1">
-                <i class="bi bi-people text-primary me-2"></i>My Patients
-            </h1>
-            <p class="text-muted mb-0">Manage your patient connections</p>
-        </div>
-        <div class="col-auto">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPatientModal">
-                <i class="bi bi-person-plus me-1"></i>Add Patient
-            </button>
-        </div>
-    </div>
-
-    <!-- Patients List -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
-            <% if (patients.length > 0) { %>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Patient Name</th>
-                                <th>Email</th>
-                                <th>Telegram Status</th>
-                                <th>Joined Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% patients.forEach(patient => { %>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                                <i class="bi bi-person text-white"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-semibold"><%= patient.name %></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><%= patient.email %></td>
-                                    <td>
-                                        <% if (patient.telegramId) { %>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle me-1"></i>Connected
-                                            </span>
-                                        <% } else { %>
-                                            <span class="badge bg-warning">
-                                                <i class="bi bi-exclamation-triangle me-1"></i>Not Connected
-                                            </span>
-                                        <% } %>
-                                    </td>
-                                    <td><%= new Date(patient.createdAt).toLocaleDateString() %></td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="/doctor/new-prescription?patient=<%= patient._id %>" class="btn btn-outline-primary" title="New Prescription">
-                                                <i class="bi bi-prescription2"></i>
-                                            </a>
-                                            <a href="/doctor/new-appointment?patient=<%= patient._id %>" class="btn btn-outline-success" title="Schedule Appointment">
-                                                <i class="bi bi-calendar-plus"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-            <% } else { %>
-                <div class="text-center py-5">
-                    <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
-                    <h4 class="mt-3 text-muted">No Patients Yet</h4>
-                    <p class="text-muted">Add your first patient to start managing their medications and appointments.</p>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPatientModal">
-                        <i class="bi bi-person-plus me-1"></i>Add First Patient
-                    </button>
-                </div>
-            <% } %>
-        </div>
-    </div>
-</div>
-
-<!-- Add Patient Modal -->
-<div class="modal fade" id="addPatientModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-person-plus me-2"></i>Add Patient
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="addPatientForm">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="patientEmail" class="form-label">Patient Email Address</label>
-                        <input type="email" class="form-control" id="patientEmail" name="patientEmail" required>
-                        <div class="form-text">The patient must already be registered with this email.</div>
-                    </div>
-                    <div id="alertContainer"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-person-plus me-1"></i>Add Patient
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-document.getElementById('addPatientForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Patients - MediCare</title>
     
-    const formData = new FormData(this);
-    const alertContainer = document.getElementById('alertContainer');
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    try {
-        const response = await fetch('/doctor/patients', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            alertContainer.innerHTML = `
-                <div class="alert alert-success">
-                    <i class="bi bi-check-circle me-2"></i>${result.message}
-                </div>
-            `;
-            
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
-        } else {
-            alertContainer.innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="bi bi-exclamation-triangle me-2"></i>${result.message}
-                </div>
-            `;
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 1.5rem;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.2);
         }
-    } catch (error) {
-        alertContainer.innerHTML = `
-            <div class="alert alert-danger">
-                <i class="bi bi-exclamation-triangle me-2"></i>An error occurred. Please try again.
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,117.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"%3E%3C/path%3E%3C/svg%3E') no-repeat bottom;
+            background-size: cover;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Styles */
+        .page-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .page-title {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Card Styles */
+        .patients-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .patients-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .patients-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        /* Table Styles */
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: none;
+            font-weight: 600;
+            color: #2d3748;
+            padding: 1rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateX(5px);
+        }
+
+        .table tbody td {
+            padding: 1.25rem 1rem;
+            border: none;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+        }
+
+        /* Patient Avatar */
+        .patient-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .patient-avatar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: inherit;
+            border-radius: 50%;
+            filter: blur(10px);
+            opacity: 0.3;
+            transform: scale(1.2);
+        }
+
+        .patient-avatar i {
+            position: relative;
+            z-index: 1;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .patient-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .badge-connected {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .badge-not-connected {
+            background: var(--warning-gradient);
+            color: white;
+        }
+
+        /* Action Buttons */
+        .btn-custom {
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid;
+        }
+
+        .btn-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-custom:hover::before {
+            left: 100%;
+        }
+
+        .btn-outline-primary-custom {
+            border-color: #667eea;
+            color: #667eea;
+            background: transparent;
+        }
+
+        .btn-outline-primary-custom:hover {
+            background: var(--primary-gradient);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-outline-success-custom {
+            border-color: #11998e;
+            color: #11998e;
+            background: transparent;
+        }
+
+        .btn-outline-success-custom:hover {
+            background: var(--success-gradient);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #718096;
+        }
+
+        .empty-state i {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            opacity: 0.5;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .empty-state h4 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow-hover);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.3rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            background: transparent;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1.5rem 2rem;
+        }
+
+        /* Form Controls */
+        .form-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .form-text {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Alert Styles */
+        .alert {
+            border: none;
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Loading State */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+            }
+            
+            .table-responsive {
+                border-radius: 0.75rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .patient-avatar {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="page-header animate-fade-in">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h1 class="page-title">
+                        <i class="bi bi-people me-3"></i>My Patients
+                    </h1>
+                    <p class="page-subtitle">Manage your patient connections</p>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary-custom btn-custom" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+                        <i class="bi bi-person-plus me-2"></i>Add Patient
+                    </button>
+                </div>
             </div>
-        `;
-    }
-});
-</script>
+        </div>
+
+        <!-- Patients List -->
+        <div class="patients-card animate-fade-in" style="animation-delay: 0.2s">
+            <div class="card-body p-0">
+                <% if (patients.length > 0) { %>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Email</th>
+                                    <th>Telegram Status</th>
+                                    <th>Joined Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% patients.forEach((patient, index) => { %>
+                                    <tr class="animate-fade-in" style="animation-delay: <%= 0.1 * (index + 1) %>s">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="patient-avatar">
+                                                    <i class="bi bi-person"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="patient-name"><%= patient.name %></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted"><%= patient.email %></span>
+                                        </td>
+                                        <td>
+                                            <% if (patient.telegramId) { %>
+                                                <span class="status-badge badge-connected">
+                                                    <i class="bi bi-check-circle me-1"></i>Connected
+                                                </span>
+                                            <% } else { %>
+                                                <span class="status-badge badge-not-connected">
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>Not Connected
+                                                </span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">
+                                                <%= new Date(patient.createdAt).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric'
+                                                }) %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="/doctor/new-prescription?patient=<%= patient._id %>" 
+                                                   class="btn btn-outline-primary-custom btn-custom" 
+                                                   title="New Prescription">
+                                                    <i class="bi bi-prescription2"></i>
+                                                </a>
+                                                <a href="/doctor/new-appointment?patient=<%= patient._id %>" 
+                                                   class="btn btn-outline-success-custom btn-custom" 
+                                                   title="Schedule Appointment">
+                                                    <i class="bi bi-calendar-plus"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="bi bi-people"></i>
+                        <h4>No Patients Yet</h4>
+                        <p>Add your first patient to start managing their medications and appointments.</p>
+                        <button class="btn btn-primary-custom btn-custom" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+                            <i class="bi bi-person-plus me-2"></i>Add First Patient
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Patient Modal -->
+    <div class="modal fade" id="addPatientModal" tabindex="-1" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPatientModalLabel">
+                        <i class="bi bi-person-plus me-2"></i>Add Patient
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="addPatientForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="patientEmail" class="form-label">Patient Email Address</label>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="patientEmail" 
+                                   name="patientEmail" 
+                                   placeholder="patient@example.com"
+                                   required>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                The patient must already be registered with this email address.
+                            </div>
+                        </div>
+                        <div id="alertContainer"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary-custom btn-custom" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary-custom btn-custom" id="submitBtn">
+                            <i class="bi bi-person-plus me-1"></i>Add Patient
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addPatientForm = document.getElementById('addPatientForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const alertContainer = document.getElementById('alertContainer');
+            const patientEmailInput = document.getElementById('patientEmail');
+
+            // Form submission
+            addPatientForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Add loading state
+                submitBtn.classList.add('btn-loading');
+                submitBtn.disabled = true;
+                
+                const formData = new FormData(this);
+                
+                try {
+                    const response = await fetch('/doctor/patients', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alertContainer.innerHTML = `
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle me-2"></i>${result.message}
+                            </div>
+                        `;
+                        
+                        // Clear form
+                        patientEmailInput.value = '';
+                        
+                        // Reload page after delay
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        alertContainer.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle me-2"></i>${result.message}
+                            </div>
+                        `;
+                        
+                        // Remove loading state
+                        submitBtn.classList.remove('btn-loading');
+                        submitBtn.disabled = false;
+                    }
+                } catch (error) {
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>An error occurred. Please try again.
+                        </div>
+                    `;
+                    
+                    // Remove loading state
+                    submitBtn.classList.remove('btn-loading');
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // Clear alerts when modal is closed
+            const modal = document.getElementById('addPatientModal');
+            modal.addEventListener('hidden.bs.modal', function() {
+                alertContainer.innerHTML = '';
+                patientEmailInput.value = '';
+                submitBtn.classList.remove('btn-loading');
+                submitBtn.disabled = false;
+            });
+
+            // Email validation enhancement
+            patientEmailInput.addEventListener('input', function() {
+                const email = this.value;
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (email && emailPattern.test(email)) {
+                    this.style.borderColor = '#28a745';
+                    this.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+                } else if (email) {
+                    this.style.borderColor = '#dc3545';
+                    this.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+                } else {
+                    this.style.borderColor = '';
+                    this.style.backgroundColor = '';
+                }
+            });
+
+            // Add hover effects to action buttons
+            const actionButtons = document.querySelectorAll('.btn-outline-primary-custom, .btn-outline-success-custom');
+            actionButtons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add smooth animations to table rows
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach((row, index) => {
+                row.style.animationDelay = `${0.1 * (index + 1)}s`;
+                row.classList.add('animate-fade-in');
+            });
+        });
+    </script>
+</body>
+</html>
