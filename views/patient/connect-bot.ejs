@@ -1,0 +1,165 @@
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="h2 fw-bold mb-1">
+                <i class="bi bi-telegram text-primary me-2"></i>Connect Telegram Bot
+            </h1>
+            <p class="text-muted mb-0">Set up automatic reminders for your medications and appointments</p>
+        </div>
+        <div class="col-auto">
+            <a href="/patient/dashboard" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <% if (typeof query !== 'undefined' && query.success === 'disconnected') { %>
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle me-2"></i>
+            Telegram bot disconnected successfully!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } else if (typeof query !== 'undefined' && query.error === 'disconnect-failed') { %>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Failed to disconnect bot. Please try again.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <% if (telegramConnected) { %>
+                <!-- Connected State -->
+                <div class="card border-0 shadow-sm border-success">
+                    <div class="card-body text-center p-5">
+                        <div class="mb-4">
+                            <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="bi bi-check-circle text-white fs-1"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-success fw-bold mb-3">Telegram Bot Connected!</h3>
+                        <p class="lead text-muted mb-4">
+                            Your account is successfully connected to the MediRemind Telegram bot. 
+                            You'll receive automatic reminders for:
+                        </p>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3">
+                                    <i class="bi bi-capsule text-primary fs-3 mb-2"></i>
+                                    <h6 class="fw-semibold">Medication Reminders</h6>
+                                    <small class="text-muted">At scheduled times daily</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3">
+                                    <i class="bi bi-calendar-event text-success fs-3 mb-2"></i>
+                                    <h6 class="fw-semibold">Appointment Reminders</h6>
+                                    <small class="text-muted">1 day before visits</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form action="/patient/disconnect-bot" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-x-circle me-1"></i>Disconnect Bot
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <% } else { %>
+                <!-- Connection Instructions -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="bi bi-telegram text-white fs-1"></i>
+                            </div>
+                            <h3 class="fw-bold mb-2">Connect to MediRemind Bot</h3>
+                            <p class="text-muted">Follow these simple steps to set up your reminders</p>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                        <span class="text-white fw-bold">1</span>
+                                    </div>
+                                    <h6 class="fw-semibold mb-2">Open Telegram</h6>
+                                    <p class="text-muted small">Launch your Telegram app on your phone or computer</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                        <span class="text-white fw-bold">2</span>
+                                    </div>
+                                    <h6 class="fw-semibold mb-2">Find the Bot</h6>
+                                    <p class="text-muted small">Search for @medi_remind_bot or click the button below</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                        <span class="text-white fw-bold">3</span>
+                                    </div>
+                                    <h6 class="fw-semibold mb-2">Connect Account</h6>
+                                    <p class="text-muted small">Use the /connect command with your email</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="text-center">
+                            <a href="https://t.me/medi_remind_bot" target="_blank" class="btn btn-primary btn-lg mb-3">
+                                <i class="bi bi-telegram me-2"></i>Open MediRemind Bot
+                            </a>
+                            <div class="bg-light rounded p-3 text-start">
+                                <h6 class="fw-semibold mb-2">
+                                    <i class="bi bi-chat-left-text text-primary me-2"></i>Commands to use:
+                                </h6>
+                                <code class="d-block mb-1">/start</code>
+                                <small class="text-muted d-block mb-2">Start the bot and see welcome message</small>
+                                
+                                <code class="d-block mb-1">/connect <%= user.email %></code>
+                                <small class="text-muted d-block mb-2">Connect your MediRemind account</small>
+                                
+                                <code class="d-block mb-1">/status</code>
+                                <small class="text-muted d-block">Check your connection status</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Benefits Card -->
+                <div class="card border-0 bg-light mt-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-star text-warning me-2"></i>Benefits of Connecting
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled small">
+                                    <li><i class="bi bi-check2 text-success me-2"></i>Never miss medication times</li>
+                                    <li><i class="bi bi-check2 text-success me-2"></i>Get appointment reminders</li>
+                                    <li><i class="bi bi-check2 text-success me-2"></i>Instant notifications on your phone</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled small">
+                                    <li><i class="bi bi-check2 text-success me-2"></i>No additional apps needed</li>
+                                    <li><i class="bi bi-check2 text-success me-2"></i>Works on all devices</li>
+                                    <li><i class="bi bi-check2 text-success me-2"></i>Free and secure</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>

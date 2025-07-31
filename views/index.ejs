@@ -1,0 +1,228 @@
+<% include('layout'); -%>
+
+<!-- Hero Section -->
+<section class="hero-section bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Never Miss Your <span class="text-warning">Medication</span> Again
+                </h1>
+                <p class="lead mb-4">
+                    MediRemind helps doctors and patients stay connected with automated Telegram reminders 
+                    for medications and appointments. Simple, secure, and reliable healthcare management.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="/auth/register" class="btn btn-warning btn-lg px-4">
+                        <i class="bi bi-person-plus me-2"></i>Get Started
+                    </a>
+                    <a href="/auth/login" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-image">
+                    <i class="bi bi-heart-pulse-fill text-warning" style="font-size: 12rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="h1 fw-bold">How MediRemind Works</h2>
+                <p class="text-muted">Simple steps to better healthcare management</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- For Doctors -->
+            <div class="col-lg-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <div class="feature-icon bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center">
+                                <i class="bi bi-person-badge text-white fs-3"></i>
+                            </div>
+                        </div>
+                        <h3 class="h4 fw-bold text-center mb-3">For Doctors</h3>
+                        <ul class="list-unstyled">
+                            <li class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                Register and create your professional profile
+                            </li>
+                            <li class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                Add patients to your practice
+                            </li>
+                            <li class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                Create prescriptions with custom schedules
+                            </li>
+                            <li class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                Schedule appointments and visits
+                            </li>
+                            <li class="d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                Monitor patient medication adherence
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- For Patients -->
+            <div class="col-lg-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <div class="feature-icon bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center">
+                                <i class="bi bi-person-heart text-white fs-3"></i>
+                            </div>
+                        </div>
+                        <h3 class="h4 fw-bold text-center mb-3">For Patients</h3>
+                        <ul class="list-unstyled">
+                            <li class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                Register and connect with your doctor
+                            </li>
+                            <li class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                Link your Telegram account for reminders
+                            </li>
+                            <li class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                Receive medication reminders automatically
+                            </li>
+                            <li class="d-flex align-items-center mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                Get notified about upcoming appointments
+                            </li>
+                            <li class="d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                Track your medication schedule easily
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Telegram Integration Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="h1 fw-bold mb-4">
+                    <i class="bi bi-telegram text-primary me-3"></i>
+                    Telegram Integration
+                </h2>
+                <p class="lead mb-4">
+                    Connect with our Telegram bot for instant, reliable reminders delivered 
+                    right to your phone. No need for additional apps!
+                </p>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clock-fill text-primary me-3 fs-4"></i>
+                            <span class="fw-semibold">Timely Medication Reminders</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-calendar-check-fill text-success me-3 fs-4"></i>
+                            <span class="fw-semibold">Appointment Notifications</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-shield-check text-warning me-3 fs-4"></i>
+                            <span class="fw-semibold">Secure & Private</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-phone text-info me-3 fs-4"></i>
+                            <span class="fw-semibold">Works on Any Device</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="telegram-demo p-4">
+                    <div class="bg-white rounded-3 shadow p-4 d-inline-block">
+                        <h5 class="text-primary mb-3">
+                            <i class="bi bi-telegram me-2"></i>@medi_remind_bot
+                        </h5>
+                        <div class="text-start bg-light rounded p-3 mb-2">
+                            <small class="text-muted">💊 Medication Reminder</small><br>
+                            <strong>Time to take: Ibuprofen</strong><br>
+                            <span class="text-muted">⏰ Scheduled time: 09:00</span>
+                        </div>
+                        <div class="text-start bg-light rounded p-3">
+                            <small class="text-muted">🏥 Appointment Reminder</small><br>
+                            <strong>You have a doctor visit tomorrow!</strong><br>
+                            <span class="text-muted">📅 Dr. Smith - 15:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="h1 fw-bold mb-4">Ready to Get Started?</h2>
+        <p class="lead mb-4">
+            Join thousands of healthcare professionals and patients who trust MediRemind 
+            to manage their medication schedules and appointments.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="/auth/register" class="btn btn-warning btn-lg px-5">
+                <i class="bi bi-person-plus me-2"></i>Register Now
+            </a>
+            <a href="/auth/login" class="btn btn-outline-light btn-lg px-5">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+}
+
+.min-vh-75 {
+    min-height: 75vh;
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+}
+
+.telegram-demo {
+    transform: scale(0.9);
+}
+
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2.5rem;
+    }
+    
+    .telegram-demo {
+        transform: scale(0.8);
+    }
+}
+</style>

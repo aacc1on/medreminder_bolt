@@ -1,0 +1,177 @@
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="h2 fw-bold mb-1">
+                <i class="bi bi-prescription2 text-primary me-2"></i>New Prescription
+            </h1>
+            <p class="text-muted mb-0">Create a medication schedule for your patient</p>
+        </div>
+        <div class="col-auto">
+            <a href="/doctor/dashboard" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <!-- Error Messages -->
+                    <% if (errors && errors.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <% errors.forEach(error => { %>
+                                <div><i class="bi bi-exclamation-triangle me-2"></i><%= error.msg %></div>
+                            <% }) %>
+                        </div>
+                    <% } %>
+
+                    <form action="/doctor/new-prescription" method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="patientId" class="form-label">Select Patient *</label>
+                                <select class="form-select" name="patientId" id="patientId" required>
+                                    <option value="">Choose a patient...</option>
+                                    <% patients.forEach(patient => { %>
+                                        <option value="<%= patient._id %>" 
+                                                <%= formData.patientId === patient._id.toString() ? 'selected' : '' %>>
+                                            <%= patient.name %> (<%= patient.email %>)
+                                        </option>
+                                    <% }) %>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Medication Name *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="name" 
+                                       name="name" 
+                                       value="<%= formData.name || '' %>"
+                                       placeholder="e.g., Ibuprofen, Amoxicillin"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dosage" class="form-label">Dosage *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="dosage" 
+                                       name="dosage" 
+                                       value="<%= formData.dosage || '' %>"
+                                       placeholder="e.g., 400mg, 1 tablet"
+                                       required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="timesPerDay" class="form-label">Times per Day *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="timesPerDay" 
+                                       name="timesPerDay" 
+                                       value="<%= formData.timesPerDay || '' %>"
+                                       placeholder="e.g., 09:00, 14:00, 21:00"
+                                       required>
+                                <div class="form-text">Enter times separated by commas (24-hour format)</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="startDate" class="form-label">Start Date *</label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="startDate" 
+                                       name="startDate" 
+                                       value="<%= formData.startDate || '' %>"
+                                       required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="endDate" class="form-label">End Date *</label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="endDate" 
+                                       name="endDate" 
+                                       value="<%= formData.endDate || '' %>"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="instructions" class="form-label">Special Instructions</label>
+                            <textarea class="form-control" 
+                                      id="instructions" 
+                                      name="instructions" 
+                                      rows="3"
+                                      placeholder="e.g., Take with food, Avoid alcohol, etc."><%= formData.instructions || '' %></textarea>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-prescription2 me-2"></i>Create Prescription
+                            </button>
+                            <a href="/doctor/dashboard" class="btn btn-outline-secondary px-4">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Helper Card -->
+            <div class="card border-0 bg-light mt-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-info-circle text-primary me-2"></i>Prescription Guidelines
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled small">
+                                <li><i class="bi bi-check2 text-success me-2"></i>Use specific medication names</li>
+                                <li><i class="bi bi-check2 text-success me-2"></i>Include exact dosage amounts</li>
+                                <li><i class="bi bi-check2 text-success me-2"></i>Use 24-hour time format</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled small">
+                                <li><i class="bi bi-check2 text-success me-2"></i>Add clear instructions for patients</li>
+                                <li><i class="bi bi-check2 text-success me-2"></i>Set realistic start and end dates</li>
+                                <li><i class="bi bi-check2 text-success me-2"></i>Patients will receive Telegram reminders</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Set today as minimum date for start date
+document.getElementById('startDate').min = new Date().toISOString().split('T')[0];
+
+// Update end date minimum when start date changes
+document.getElementById('startDate').addEventListener('change', function() {
+    const startDate = this.value;
+    document.getElementById('endDate').min = startDate;
+});
+
+// Auto-format times
+document.getElementById('timesPerDay').addEventListener('blur', function() {
+    const times = this.value.split(',').map(time => time.trim());
+    const formattedTimes = times.map(time => {
+        // Simple time format validation and correction
+        if (time.match(/^\d{1,2}:\d{2}$/)) {
+            const [hours, minutes] = time.split(':');
+            const formattedHours = hours.padStart(2, '0');
+            return `${formattedHours}:${minutes}`;
+        }
+        return time;
+    });
+    this.value = formattedTimes.join(', ');
+});
+</script>

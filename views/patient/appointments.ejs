@@ -1,0 +1,127 @@
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="h2 fw-bold mb-1">
+                <i class="bi bi-calendar-event text-success me-2"></i>My Appointments
+            </h1>
+            <p class="text-muted mb-0">View all your scheduled appointments</p>
+        </div>
+        <div class="col-auto">
+            <a href="/patient/dashboard" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Appointments List -->
+    <% if (appointments.length > 0) { %>
+        <div class="row g-4">
+            <% appointments.forEach(appointment => { %>
+                <% 
+                const appointmentDate = new Date(appointment.date);
+                const today = new Date();
+                const isUpcoming = appointmentDate >= today;
+                const isPast = appointmentDate < today;
+                %>
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100 <%= isPast ? 'opacity-75' : '' %>">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title fw-bold mb-0">
+                                    <i class="bi bi-person-badge text-primary me-2"></i>
+                                    Dr. <%= appointment.doctorId.name %>
+                                </h5>
+                                <span class="badge bg-<%= 
+                                    appointment.status === 'scheduled' ? (isUpcoming ? 'primary' : 'secondary') : 
+                                    appointment.status === 'completed' ? 'success' : 
+                                    appointment.status === 'cancelled' ? 'danger' : 'warning' 
+                                %>">
+                                    <%= appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1) %>
+                                </span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Clinic</small>
+                                <strong class="text-dark">
+                                    <%= appointment.doctorId.clinicName %>
+                                </strong>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="row g-2">
+                                    <div class="col-sm-6">
+                                        <small class="text-muted d-block mb-1">Date</small>
+                                        <div class="fw-semibold">
+                                            <i class="bi bi-calendar text-primary me-1"></i>
+                                            <%= appointmentDate.toLocaleDateString('en-US', { 
+                                                weekday: 'short',
+                                                month: 'short', 
+                                                day: 'numeric',
+                                                year: 'numeric'
+                                            }) %>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <small class="text-muted d-block mb-1">Time</small>
+                                        <div class="fw-semibold">
+                                            <i class="bi bi-clock text-success me-1"></i>
+                                            <%= appointment.time %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <small class="text-muted d-block mb-1">Location</small>
+                                <div class="text-dark">
+                                    <i class="bi bi-geo-alt text-danger me-1"></i>
+                                    <%= appointment.location %>
+                                </div>
+                            </div>
+
+                            <% if (appointment.notes) { %>
+                                <div class="mb-3">
+                                    <small class="text-muted d-block mb-1">Notes</small>
+                                    <div class="bg-light rounded p-2 small">
+                                        <i class="bi bi-chat-left-text text-info me-1"></i>
+                                        <%= appointment.notes %>
+                                    </div>
+                                </div>
+                            <% } %>
+
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <small class="text-muted">
+                                    <% if (isUpcoming && appointmentDate.toDateString() === new Date(Date.now() + 24*60*60*1000).toDateString()) { %>
+                                        <i class="bi bi-exclamation-circle text-warning me-1"></i>
+                                        Tomorrow
+                                    <% } else if (isUpcoming) { %>
+                                        <i class="bi bi-calendar-plus me-1"></i>
+                                        Upcoming
+                                    <% } else { %>
+                                        <i class="bi bi-calendar-check me-1"></i>
+                                        Past appointment
+                                    <% } %>
+                                </small>
+                                <% if (appointment.reminderSent && isUpcoming) { %>
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-telegram me-1"></i>Reminder sent
+                                    </span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <div class="text-center py-5">
+            <i class="bi bi-calendar-event text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 text-muted">No Appointments Scheduled</h4>
+            <p class="text-muted">Your doctor hasn't scheduled any appointments yet.</p>
+            <a href="/patient/dashboard" class="btn btn-primary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+            </a>
+        </div>
+    <% } %>
+</div>
